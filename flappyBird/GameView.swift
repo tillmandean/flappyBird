@@ -3,9 +3,6 @@ import SwiftUI
 struct GameView: View {
     @State private var vm = GameViewModel()
 
-    private let groundYFraction: Double = 0.88
-    private let birdXFraction: Double = 0.22
-
     var body: some View {
         TimelineView(.animation) { timeline in
             Canvas { context, size in
@@ -31,7 +28,7 @@ struct GameView: View {
                 )
 
                 // 2. Scrolling ground
-                let groundY = groundYFraction * size.height
+                let groundY = vm.groundYFraction * size.height
                 let tileWidth: Double = 60
                 let offset = vm.groundScrollOffset
 
@@ -63,7 +60,7 @@ struct GameView: View {
 
                 // 3. Pipes with caps
                 for pipe in vm.pipes {
-                    let topRect = pipe.topRect(screenHeight: size.height)
+                    let topRect = pipe.topRect()
                     let bottomRect = pipe.bottomRect(screenHeight: size.height)
                     let capHeight: Double = 26
                     let capExtra: Double = 12
@@ -87,7 +84,7 @@ struct GameView: View {
                 }
 
                 // 4. Bird with rotation
-                let birdX = birdXFraction * size.width
+                let birdX = vm.birdXFraction * size.width
                 let birdY = vm.bird.y
                 let r = vm.bird.radius
 
@@ -205,7 +202,7 @@ struct GameView: View {
             .padding(.horizontal, 28)
             .padding(.vertical, 14)
             .background(Color.black.opacity(0.3))
-            .cornerRadius(14)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
 
             if vm.medalName != "none" {
                 Text("\(medalEmoji(vm.medalName)) \(vm.medalName.capitalized) Medal")
@@ -216,7 +213,6 @@ struct GameView: View {
 
             Button(action: {
                 vm.reset()
-                vm.audio.prepareHaptics()
             }) {
                 Text("Tap to Retry")
                     .font(.system(size: 20, weight: .bold, design: .rounded))
@@ -224,7 +220,7 @@ struct GameView: View {
                     .padding(.horizontal, 32)
                     .padding(.vertical, 12)
                     .background(Color(red: 0.2, green: 0.7, blue: 0.2))
-                    .cornerRadius(12)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .shadow(radius: 4)
             }
         }
