@@ -78,7 +78,7 @@ class GameViewModel {
 
         // Ground scroll (visual only, updated here for convenience)
         groundScrollOffset += currentPipeSpeed * dt
-        groundScrollOffset = groundScrollOffset.truncatingRemainder(dividingBy: 60)
+        groundScrollOffset = groundScrollOffset.truncatingRemainder(dividingBy: 120)
 
         // Death flash fade
         if deathFlashOpacity > 0 {
