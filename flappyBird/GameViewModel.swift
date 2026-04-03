@@ -30,6 +30,13 @@ class GameViewModel {
     // MARK: - Simulation State
     private var lastTimestamp: TimeInterval = 0
     private var timeSinceLastPipe: Double = 0
+    private var flapAge: Double = 0.5   // seconds since last flap; 0.5 = resting
+
+    // MARK: - Wing Animation
+    // Damped sine: upstroke peaks ~0.13 s after tap, decays to rest by ~0.5 s
+    var wingAngle: Double {
+        sin(flapAge * 12.0) * exp(-flapAge * 5.0) * (.pi / 3)
+    }
 
     // MARK: - Difficulty (increases with score)
     var currentPipeSpeed: Double { pipeSpeed + Double(score) * 2.5 }
@@ -56,6 +63,7 @@ class GameViewModel {
             lastTimestamp = 0
         }
         bird.velocity = flapImpulse
+        flapAge = 0
         audio.playFlap()
     }
 
@@ -70,6 +78,8 @@ class GameViewModel {
 
         let dt = min(timestamp - lastTimestamp, 0.05)
         lastTimestamp = timestamp
+
+        flapAge = min(flapAge + dt, 0.5)
 
         // Bird physics
         bird.velocity += gravity * dt
@@ -140,6 +150,7 @@ class GameViewModel {
         timeSinceLastPipe = 0
         deathFlashOpacity = 0
         groundScrollOffset = 0
+        flapAge = 0.5
         audio.prepareHaptics()
     }
 
