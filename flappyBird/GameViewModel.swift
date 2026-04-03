@@ -1,6 +1,7 @@
 import SwiftUI
 
 @Observable
+@MainActor
 class GameViewModel {
     // MARK: - State
     var bird: Bird = Bird(y: 400, velocity: 0)
@@ -10,7 +11,7 @@ class GameViewModel {
     var phase: GamePhase = .waiting
     var deathFlashOpacity: Double = 0
 
-    let audio = AudioHapticsManager()
+    private let audio: AudioFeedback
 
     // MARK: - Screen Info (set by View on appear)
     var screenSize: CGSize = .zero
@@ -21,21 +22,29 @@ class GameViewModel {
     private let flapImpulse: Double = -420
     private let pipeSpeed: Double = 200
     private let pipeSpawnInterval: Double = 1.8
-    private let groundYFraction: Double = 0.88
-    private let birdXFraction: Double = 0.22
+    let groundYFraction: Double = 0.88
+    let birdXFraction: Double = 0.22
+
+    private static let highScoreKey = "flappy_highscore"
 
     // MARK: - Simulation State
     private var lastTimestamp: TimeInterval = 0
     private var timeSinceLastPipe: Double = 0
 
     // MARK: - Difficulty (increases with score)
-    private var currentPipeSpeed: Double { pipeSpeed + Double(score) * 2.5 }
-    private var currentSpawnInterval: Double { max(0.9, pipeSpawnInterval - Double(score) * 0.02) }
+    var currentPipeSpeed: Double { pipeSpeed + Double(score) * 2.5 }
+    var currentSpawnInterval: Double { max(0.9, pipeSpawnInterval - Double(score) * 0.02) }
 
     // MARK: - Init
-    init() {
-        highScore = UserDefaults.standard.integer(forKey: "flappy_highscore")
+
+    init(audio: AudioFeedback) {
+        self.audio = audio
+        highScore = UserDefaults.standard.integer(forKey: Self.highScoreKey)
         audio.prepareHaptics()
+    }
+
+    convenience init() {
+        self.init(audio: AudioHapticsManager())
     }
 
     // MARK: - Public Interface
@@ -114,7 +123,7 @@ class GameViewModel {
             height: bird.radius * 2
         )
         for pipe in pipes {
-            if birdRect.intersects(pipe.topRect(screenHeight: screenSize.height)) ||
+            if birdRect.intersects(pipe.topRect()) ||
                birdRect.intersects(pipe.bottomRect(screenHeight: screenSize.height)) {
                 die()
                 return
@@ -131,6 +140,7 @@ class GameViewModel {
         timeSinceLastPipe = 0
         deathFlashOpacity = 0
         groundScrollOffset = 0
+        audio.prepareHaptics()
     }
 
     var medalName: String {
@@ -150,7 +160,7 @@ class GameViewModel {
         audio.playDeath()
         if score > highScore {
             highScore = score
-            UserDefaults.standard.set(highScore, forKey: "flappy_highscore")
+            UserDefaults.standard.set(highScore, forKey: Self.highScoreKey)
         }
     }
 }

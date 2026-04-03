@@ -4,7 +4,16 @@ import AudioToolbox
 import UIKit
 #endif
 
-final class AudioHapticsManager {
+@MainActor
+protocol AudioFeedback {
+    func prepareHaptics()
+    func playFlap()
+    func playScore()
+    func playDeath()
+}
+
+@MainActor
+final class AudioHapticsManager: AudioFeedback {
     #if os(iOS)
     private let flapFeedback = UIImpactFeedbackGenerator(style: .medium)
     private let scoreFeedback = UIImpactFeedbackGenerator(style: .light)

@@ -9,10 +9,6 @@ struct Bird {
     var y: Double
     var velocity: Double
     let radius: Double = 18
-
-    var rect: CGRect {
-        CGRect(x: 0, y: y - radius, width: radius * 2, height: radius * 2)
-    }
 }
 
 struct Pipe: Identifiable {
@@ -23,7 +19,7 @@ struct Pipe: Identifiable {
     let width: Double = 60
     let gapHeight: Double = 160
 
-    func topRect(screenHeight: Double) -> CGRect {
+    func topRect() -> CGRect {
         CGRect(x: x, y: 0, width: width, height: gapY - gapHeight / 2)
     }
 
