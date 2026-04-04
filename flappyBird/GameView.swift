@@ -99,6 +99,18 @@ struct GameView: View {
                     Path(ellipseIn: CGRect(x: -r, y: -r, width: r * 2, height: r * 2)),
                     with: .color(Color(red: 1.0, green: 0.85, blue: 0.0))
                 )
+
+                // Wing — drawn after body so attachment point is visible.
+                // The ellipse extends further left so the tip is always outside
+                // the r=18 body. Base angle -π/8 gives a natural downward droop
+                // at rest; positive wingAngle rotates CW which lifts the tip up.
+                var wingCtx = birdContext
+                wingCtx.translateBy(x: -r * 0.5, y: 0)
+                wingCtx.rotate(by: Angle(radians: -.pi / 8 + vm.wingAngle * 2.5))
+                wingCtx.fill(
+                    Path(ellipseIn: CGRect(x: -24, y: -7, width: 24, height: 14)),
+                    with: .color(Color(red: 1.0, green: 0.5, blue: 0.0))
+                )
                 birdContext.fill(
                     Path(ellipseIn: CGRect(x: r * 0.2, y: -r * 0.5, width: 7, height: 7)),
                     with: .color(.white)
